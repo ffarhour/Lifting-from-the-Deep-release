@@ -92,5 +92,3 @@ def plot_pose(pose):
     ax.set_zlim3d(smallest, largest)
 
     return fig
-
-
