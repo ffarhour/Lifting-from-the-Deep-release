@@ -66,7 +66,7 @@ def main(args):
     #draw_results(image, pose_2d, visibility, pose_3d)
 
 
-def draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image=False, do_display=False, filename=""):
+def draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image=False, do_display=False, filename="", video_frame_num=0):
     """Plot 2D and 3D poses for each of the people in the image."""
     plt.figure()
     draw_limbs(in_image, data_2d, joint_visibility)
@@ -78,16 +78,16 @@ def draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image=
     for single_3D in data_3d:
         # or plot_pose(Prob3dPose.centre_all(single_3D))
         my_plot = plot_pose(single_3D)
-        my_plot.savefig(filename + str(index) + ".png")
+        my_plot.savefig(filename + str(index) + "_" + str(video_frame_num) + ".png")
         index+=1
 
     if(do_display):
         plt.show()
 
 
-def handle_output(in_image, data_2d, joint_visibility, data_3d, output_name, output_type):
+def handle_output(in_image, data_2d, joint_visibility, data_3d, output_name, output_type, video_frame_num=0):
     # process output name
-    filename = output_name + "/" + "0"
+    filename = output_name + "/"
 
     if("text" in output_type):
         helpers.fio_save_pose_3d_text(filename, data_3d)
@@ -101,7 +101,7 @@ def handle_output(in_image, data_2d, joint_visibility, data_3d, output_name, out
     if("disp" in output_type):
         do_display_images = True
 
-    draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image, do_display_images, filename)
+    draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image, do_display_images, filename, video_frame_number)
 
     if("video" in output_type):
         video_filename = filename + ".mp4"
