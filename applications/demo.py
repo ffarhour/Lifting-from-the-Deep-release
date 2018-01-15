@@ -85,26 +85,27 @@ def draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image=
         plt.show()
 
 
-def handle_output(in_image, data_2d, joint_visibility, data_3d, in_output_name, in_output_type):
+def handle_output(in_image, data_2d, joint_visibility, data_3d, output_name, output_type):
     # process output name
-    filename = in_output_name + "/" + "0"
+    filename = output_name + "/" + "0"
 
-    if("text" in in_output_type):
+    if("text" in output_type):
         helpers.fio_save_pose_3d_text(filename, data_3d)
 
     # set variables to know what to do
     do_save_as_image = False
     do_save_as_video = False
     do_display_images = False
-    if("images" in in_output_type):
+    if("images" in output_type):
         do_save_as_image = True
-    if("video" in in_output_type):
-        do_save_as_video = True
-    if("disp" in in_output_type):
-        do_display_images = False
+    if("disp" in output_type):
+        do_display_images = True
 
     draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image, do_display_images, filename)
 
+    if("video" in output_type):
+        video_filename = filename + ".mp4"
+        helpers.fio_stitch_images_to_video(output_name, video_filename)
 
 if __name__ == '__main__':
     import sys
