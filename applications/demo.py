@@ -3,7 +3,8 @@
 """
 Created on Dec 20 17:39 2016
 
-@author: Denis Tome'
+@author: Denis Tome
+@author: Farmehr Farhour
 """
 
 import __init__
@@ -16,6 +17,10 @@ import cv2
 import matplotlib.pyplot as plt
 from os.path import dirname, realpath
 
+import argparse
+
+import helpers
+
 DIR_PATH = dirname(realpath(__file__))
 PROJECT_PATH = realpath(DIR_PATH + '/..')
 IMAGE_FILE_PATH = PROJECT_PATH + '/data/images/test_image.png'
@@ -24,7 +29,20 @@ SESSION_PATH = SAVED_SESSIONS_DIR + '/init_session/init'
 PROB_MODEL_PATH = SAVED_SESSIONS_DIR + '/prob_model/prob_model_params.mat'
 
 
-def main():
+def main(args):
+
+    # argparse
+    parser = argparse.ArgumentParser(description='Lifting from the Deep')
+    requiredNamed = parser.add_argument_group('Required Named Arguments')
+    requiredNamed.add_argument('--outputtype', '-t', nargs='+', type=str, metavar='<type of output>', choices=["disp","text","images","video"], help='types of output, e.g. display only, images, text, video. If not provided, no output will be written to file.', required=True)
+    requiredNamed.add_argument('--output', '-o', type=str, metavar='<output folder name>', help='the folder name to store the output', required=True)
+    optionalArgs = parser.add_argument_group('Optional Arguments')
+
+
+    args = parser.parse_args()
+    print(args)
+
+
     image = cv2.imread(IMAGE_FILE_PATH)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # conversion to rgb
 
@@ -42,11 +60,13 @@ def main():
     # close model
     pose_estimator.close()
 
+    handle_output(image, pose_2d, visibility, pose_3d, args.output, args.outputtype)
+
     # Show 2D and 3D poses
-    display_results(image, pose_2d, visibility, pose_3d)
+    #draw_results(image, pose_2d, visibility, pose_3d)
 
 
-def display_results(in_image, data_2d, joint_visibility, data_3d):
+def draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image=False, do_display=False, filename="", video_frame_num=0):
     """Plot 2D and 3D poses for each of the people in the image."""
     plt.figure()
     draw_limbs(in_image, data_2d, joint_visibility)
@@ -54,12 +74,38 @@ def display_results(in_image, data_2d, joint_visibility, data_3d):
     plt.axis('off')
 
     # Show 3D poses
+    index = 0
     for single_3D in data_3d:
         # or plot_pose(Prob3dPose.centre_all(single_3D))
-        plot_pose(single_3D)
+        my_plot = plot_pose(single_3D)
+        my_plot.savefig(filename + str(index) + "_" + str(video_frame_num) + ".png")
+        index+=1
 
-    plt.show()
+    if(do_display):
+        plt.show()
+
+
+def handle_output(in_image, data_2d, joint_visibility, data_3d, output_name, output_type, video_frame_num=0):
+    # process output name
+    filename = output_name + "/"
+
+    if("text" in output_type):
+        helpers.fio_save_pose_3d_text(filename, data_3d)
+
+    # set variables to know what to do
+    do_save_as_image = False
+    do_save_as_video = False
+    do_display_images = False
+    if("images" in output_type):
+        do_save_as_image = True
+    if("disp" in output_type):
+        do_display_images = True
+
+    draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image, do_display_images, filename, video_frame_num)
+
+    if("video" in output_type):
+        helpers.fio_stitch_images_to_video(output_name, filename)
 
 if __name__ == '__main__':
     import sys
-    sys.exit(main())
+    sys.exit(main(sys.argv))
