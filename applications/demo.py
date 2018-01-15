@@ -101,11 +101,10 @@ def handle_output(in_image, data_2d, joint_visibility, data_3d, output_name, out
     if("disp" in output_type):
         do_display_images = True
 
-    draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image, do_display_images, filename, video_frame_number)
+    draw_results(in_image, data_2d, joint_visibility, data_3d, do_save_as_image, do_display_images, filename, video_frame_num)
 
     if("video" in output_type):
-        video_filename = filename + ".mp4"
-        helpers.fio_stitch_images_to_video(output_name, video_filename)
+        helpers.fio_stitch_images_to_video(output_name, filename)
 
 if __name__ == '__main__':
     import sys
