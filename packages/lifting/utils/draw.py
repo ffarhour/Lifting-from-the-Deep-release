@@ -42,7 +42,8 @@ def draw_limbs(image, pose_2d, visible):
             cv2.line(image, (x0, y0), (x1, y1),
                      _COLORS[lid], LIMB_DRAW_SIZE*_NORMALISATION_FACTOR , 16)
 
-
+global smallest
+global largest
 def plot_pose(pose):
     """Plot the 3D pose showing the joint connections."""
     import mpl_toolkits.mplot3d.axes3d as p3
@@ -85,8 +86,12 @@ def plot_pose(pose):
         col = '#%02x%02x%02x' % joint_color(j)
         ax.scatter(pose[0, j], pose[1, j], pose[2, j],
                    c=col, marker='o', edgecolor=col)
-    smallest = pose.min()
-    largest = pose.max()
+    try:
+        smallest
+    except:
+        smallest = pose.min()
+        largest = pose.max()
+        
     ax.set_xlim3d(smallest, largest)
     ax.set_ylim3d(smallest, largest)
     ax.set_zlim3d(smallest, largest)
