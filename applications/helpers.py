@@ -31,7 +31,7 @@ def fio_save_pose_3d_text(in_filename, in_pose_3d):
     str1 = np.array2string(in_pose_3d)
     fio_print_to_file(in_filename, str1)
 
-def fio_stitch_images_to_video(in_folder_name, output_name):
+def fio_stitch_images_to_video(in_folder_name, start_frame):
     "stitches all png files in the folder and saves as video_name"
 
     images = [img for img in os.listdir(in_folder_name) if img.endswith(".png")]
@@ -53,10 +53,11 @@ def fio_stitch_images_to_video(in_folder_name, output_name):
     height, width, layers = frame.shape
     fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     for i in range(0,number_of_people): # for every person
-        video_name = output_name + str(i) + ".avi"
+        video_name = in_folder_name + str(i) + ".avi"
         video = cv2.VideoWriter(video_name, fourcc, 1, (width,height))
         for frames in range(0, number_of_frames): # for every frame
-                image_filename = str(i) + "_" + str(frames) + ".png"
-                video.write(cv2.imread(os.path.join(in_folder_name, image_filename)))
+            image_filename = str(i) + "_" + str(frames + start_frame) + ".png"
+            print("getting " + image_filename)
+            video.write(cv2.imread(os.path.join(in_folder_name, image_filename)))
         video.release()
     cv2.destroyAllWindows()
