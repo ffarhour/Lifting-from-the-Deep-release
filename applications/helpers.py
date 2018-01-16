@@ -39,25 +39,31 @@ def fio_stitch_images_to_video(in_folder_name, start_frame):
     # find number of people in the image
     number_of_people = 0
     images_frame_names = []
+    person_id_list = []
     for image in images:
         person_id = int(image.split("_")[0])
-        if(number_of_people==person_id):
+        if person_id not in person_id_list:
             number_of_people += 1
+            person_id_list.append(person_id)
+
         # get all images without person id
         images_frame_names += image.split("_")[1:]
 
     number_of_frames = len(set(images_frame_names))
     print(number_of_frames)
 
-    frame = cv2.imread(os.path.join(in_folder_name, images[0]))
-    height, width, layers = frame.shape
-    fourcc = cv2.VideoWriter_fourcc(*'MPEG')
-    for i in range(0,number_of_people): # for every person
+    for i in person_id_list: # for every person
+        image_filename = str(i) + "_" + str(start_frame) + ".png"
+        frame = cv2.imread(os.path.join(in_folder_name, image_filename))
+        height, width, layers = frame.shape
+        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
         video_name = in_folder_name + str(i) + ".avi"
-        video = cv2.VideoWriter(video_name, fourcc, 1, (width,height))
+        video = cv2.VideoWriter(video_name, fourcc, 30, (width,height))
         for frames in range(0, number_of_frames): # for every frame
             image_filename = str(i) + "_" + str(frames + start_frame) + ".png"
             print("getting " + image_filename)
-            video.write(cv2.imread(os.path.join(in_folder_name, image_filename)))
+            frame = cv2.imread(os.path.join(in_folder_name, image_filename))
+            frame = cv2.resize(frame, (width,height))
+            video.write(frame)
         video.release()
-    cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
